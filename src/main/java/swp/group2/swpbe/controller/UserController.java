@@ -21,6 +21,7 @@ import swp.group2.swpbe.dto.UpdateProfileDTO;
 import swp.group2.swpbe.entities.User;
 import swp.group2.swpbe.exception.ApiRequestException;
 import swp.group2.swpbe.response.AuthResponse;
+import swp.group2.swpbe.response.UserDisplayResponse;
 import swp.group2.swpbe.service.AuthService;
 import swp.group2.swpbe.service.CloudinaryService;
 import swp.group2.swpbe.service.JwtService;
@@ -28,6 +29,8 @@ import swp.group2.swpbe.service.UserService;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -56,6 +59,11 @@ public class UserController {
     @GetMapping("auth/refresh")
     public String refresh(@RequestHeader("Authorization") String refreshToken) {
         return authService.refreshToken(refreshToken);
+    }
+
+    @GetMapping("auth/user/displays")
+    public List<UserDisplayResponse> refresh() {
+        return authService.getUserDisplayInformation();
     }
 
     @PostMapping("auth/login")

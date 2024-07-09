@@ -1,5 +1,8 @@
 package swp.group2.swpbe.service;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import io.jsonwebtoken.ExpiredJwtException;
@@ -7,6 +10,7 @@ import swp.group2.swpbe.constant.UserRole;
 import swp.group2.swpbe.entities.User;
 import swp.group2.swpbe.exception.ApiRequestException;
 import swp.group2.swpbe.repository.UserRepository;
+import swp.group2.swpbe.response.UserDisplayResponse;
 
 @Service
 public class AuthService {
@@ -48,5 +52,16 @@ public class AuthService {
     public boolean isAdmin(String userId) {
         User user = userRepository.findById(Integer.parseInt(userId));
         return user.getRole().equals(UserRole.ADMIN);
+    }
+
+    public List<UserDisplayResponse> getUserDisplayInformation() {
+        List<User> users = userRepository.findAll();
+        List<UserDisplayResponse> userDisplays = new ArrayList<>();
+        for (User user : users) {
+            userDisplays.add(
+                    new UserDisplayResponse(user.getId(), user.getFullName(), user.getEmail(), user.getAvatarUrl()));
+        }
+        return userDisplays;
+
     }
 }
