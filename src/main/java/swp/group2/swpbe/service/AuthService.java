@@ -18,17 +18,17 @@ public class AuthService {
         this.jwtService = jwtService;
     }
 
-    public String loginUser(String token) {
+    public User loginUser(String token) {
         if (token == null) {
             throw new ApiRequestException("invalid_request", HttpStatus.UNAUTHORIZED);
         }
-        String userId = null;
+        User user = null;
         try {
-            userId = jwtService.verifyToken(token);
+            user = jwtService.verifyToken(token);
         } catch (ExpiredJwtException e) {
             throw new ApiRequestException("expired_session", HttpStatus.UNAUTHORIZED);
         }
-        return userId;
+        return user;
     }
 
     public String refreshToken(String token) {
@@ -36,8 +36,9 @@ public class AuthService {
             throw new ApiRequestException("invalid_request", HttpStatus.UNAUTHORIZED);
         }
         try {
-            String userId = jwtService.verifyToken(token);
-            return jwtService.generateAccessToken(userId);
+            String userId = jwtService.verifyRefreshToken(token);
+            User user = userRepository.findById(Integer.parseInt(userId));
+            return jwtService.generateAccessToken(user);
         } catch (ExpiredJwtException e) {
             throw new ApiRequestException("expired_session", HttpStatus.UNAUTHORIZED);
         }

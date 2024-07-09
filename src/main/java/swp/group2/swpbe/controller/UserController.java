@@ -61,7 +61,7 @@ public class UserController {
     @PostMapping("auth/login")
     public AuthResponse login(@RequestBody LoginDTO body) {
         User user = userService.login(body);
-        String accessToken = jwtService.generateAccessToken(user.getId() + "");
+        String accessToken = jwtService.generateAccessToken(user);
         String refreshToken = jwtService.generateRefreshToken(user.getId() + "");
         return new AuthResponse(user, accessToken, refreshToken);
     }
@@ -83,7 +83,7 @@ public class UserController {
     @PostMapping("auth/social")
     public AuthResponse loginSocial(@RequestBody LoginSocialDTO body) {
         User user = userService.saveSocialUser(body);
-        String accessToken = jwtService.generateAccessToken(user.getId() + "");
+        String accessToken = jwtService.generateAccessToken(user);
         String refreshToken = jwtService.generateRefreshToken(user.getId() + "");
         return new AuthResponse(user, accessToken, refreshToken);
     }
@@ -107,14 +107,14 @@ public class UserController {
 
     @GetMapping("auth/profile")
     public User getProfile(@RequestHeader("Authorization") String token) {
-        String userId = authService.loginUser(token);
+        String userId = authService.loginUser(token).getId() + "";
         return userService.getUserProfile(userId);
     }
 
     @PatchMapping("auth/change-password")
     public ResponseEntity<?> updatePassword(@RequestBody UpdatePasswordDTO body,
             @RequestHeader("Authorization") String token) {
-        String userId = authService.loginUser(token);
+        String userId = authService.loginUser(token).getId() + "";
         userService.updatePassword(body, userId);
         return ResponseEntity.ok("Update password successfully");
     }
@@ -122,7 +122,7 @@ public class UserController {
     @PatchMapping("auth/update-avatar")
     public ResponseEntity<?> update(@RequestParam("image") MultipartFile file,
             @RequestHeader("Authorization") String token) {
-        String userId = authService.loginUser(token);
+        String userId = authService.loginUser(token).getId() + "";
         Map data = this.cloudinaryService.upload(file);
         String url = (String) data.get("url");
         userService.updateAvatar(url, userId);
@@ -132,7 +132,7 @@ public class UserController {
     @PutMapping("auth/profile")
     public ResponseEntity<?> updateProfile(@RequestBody UpdateProfileDTO body,
             @RequestHeader("Authorization") String token) {
-        String userId = authService.loginUser(token);
+        String userId = authService.loginUser(token).getId() + "";
         userService.updateProfile(body, userId);
         return new ResponseEntity<>("update profile successfully", HttpStatus.OK);
     }

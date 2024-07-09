@@ -96,7 +96,7 @@ public class UserService {
     public User updateVerifyEmail(String token) {
         String email = "";
         try {
-            email = jwtService.verifyToken(token);
+            email = jwtService.verifyToken(token).getEmail();
         } catch (Exception e) {
             throw new ApiRequestException("Invalid token", HttpStatus.BAD_REQUEST);
         }
@@ -120,7 +120,7 @@ public class UserService {
     public void changePassword(ChangePasswordDTO body) {
         String email = "";
         try {
-            email = jwtService.verifyToken(body.getToken());
+            email = jwtService.verifyToken(body.getToken()).getEmail();
         } catch (Exception e) {
             throw new ApiRequestException("Invalid token!", HttpStatus.BAD_REQUEST);
         }

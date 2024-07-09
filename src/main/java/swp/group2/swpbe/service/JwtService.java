@@ -6,6 +6,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import io.jsonwebtoken.*;
+import swp.group2.swpbe.constant.UserRole;
+import swp.group2.swpbe.entities.User;
 
 @Service
 public class JwtService {
@@ -29,11 +31,15 @@ public class JwtService {
                 .compact();
     }
 
-    public String generateAccessToken(String subject) {
+    public String generateAccessToken(User user) {
+        user.setPassword("");
         Date now = new Date();
         Date expiryDate = new Date(now.getTime() + JWT_ACCESS_EXPIRATION);
         return Jwts.builder()
-                .setSubject(subject)
+                .claim("id", user.getId())
+                .claim("email", user.getEmail())
+                .claim("role", user.getRole())
+                .setSubject(user.getId() + "")
                 .setIssuedAt(now)
                 .setExpiration(expiryDate)
                 .signWith(SignatureAlgorithm.HS512, JWT_SECRET)
@@ -51,12 +57,17 @@ public class JwtService {
                 .compact();
     }
 
-    public String verifyToken(String token) {
+    public User verifyToken(String token) {
         Claims claims = Jwts.parser()
                 .setSigningKey(JWT_SECRET)
                 .parseClaimsJws(token)
                 .getBody();
-        return claims.getSubject();
+
+        User user = new User();
+        user.setId(Integer.parseInt(claims.get("id").toString()));
+        user.setEmail(claims.get("email").toString());
+        user.setRole(UserRole.valueOf(claims.get("role").toString()));
+        return user;
     }
 
     public String verifyRefreshToken(String token) {
