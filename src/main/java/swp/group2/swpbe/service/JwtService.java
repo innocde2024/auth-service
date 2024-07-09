@@ -1,13 +1,16 @@
 package swp.group2.swpbe.service;
 
+import java.io.UnsupportedEncodingException;
 import java.util.Date;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import io.jsonwebtoken.*;
 import swp.group2.swpbe.constant.UserRole;
 import swp.group2.swpbe.entities.User;
+import swp.group2.swpbe.exception.ApiRequestException;
 
 @Service
 public class JwtService {
@@ -17,7 +20,7 @@ public class JwtService {
     private String JWT_REFRESH_SECRET;
 
     private static final long JWT_VERIFY_EXPIRATION = 300000L;
-    private static final long JWT_ACCESS_EXPIRATION = 300000L;
+    private static final long JWT_ACCESS_EXPIRATION = 24 * 60 * 60 * 1000;
     private static final long JWT_REFRESH_EXPIRATION = 365L * 24 * 60 * 60 * 1000;
 
     public String generateVerifyToken(String subject) {
@@ -35,15 +38,22 @@ public class JwtService {
         user.setPassword("");
         Date now = new Date();
         Date expiryDate = new Date(now.getTime() + JWT_ACCESS_EXPIRATION);
-        return Jwts.builder()
-                .claim("id", user.getId())
-                .claim("email", user.getEmail())
-                .claim("role", user.getRole())
-                .setSubject(user.getId() + "")
-                .setIssuedAt(now)
-                .setExpiration(expiryDate)
-                .signWith(SignatureAlgorithm.HS512, JWT_SECRET)
-                .compact();
+        try {
+            return Jwts.builder()
+                    .claim("id", user.getId())
+                    .claim("email", user.getEmail())
+                    .claim("role", user.getRole())
+                    .setSubject(user.getId() + "")
+                    .setIssuedAt(now)
+                    .setExpiration(expiryDate)
+                    .signWith(SignatureAlgorithm.HS512, JWT_SECRET.getBytes("UTF-8"))
+                    .compact();
+        } catch (UnsupportedEncodingException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+            throw new ApiRequestException("invalid_request", HttpStatus.UNAUTHORIZED);
+        }
+
     }
 
     public String generateRefreshToken(String subject) {
