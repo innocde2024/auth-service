@@ -221,7 +221,8 @@ public class UserService {
         }
         switch (type) {
             case VERIFY:
-                url = allowedOrigins + "/verify?token=" + token;
+                // url = allowedOrigins + ":8080/verify?token=" + token;
+                url = "http://localhost:8080/verify?token=" + token;
                 break;
             case FORGOT_PASSWORD:
                 url = allowedOrigins + "/reset-password?token=" + token;
