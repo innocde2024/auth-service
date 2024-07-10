@@ -34,6 +34,14 @@ public class JwtService {
                 .compact();
     }
 
+    public String verifyVToken(String token) {
+        Claims claims = Jwts.parser()
+                .setSigningKey(JWT_SECRET)
+                .parseClaimsJws(token)
+                .getBody();
+        return claims.getSubject();
+    }
+
     public String generateAccessToken(User user) {
         user.setPassword("");
         Date now = new Date();
@@ -49,9 +57,8 @@ public class JwtService {
                     .signWith(SignatureAlgorithm.HS512, JWT_SECRET.getBytes("UTF-8"))
                     .compact();
         } catch (UnsupportedEncodingException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
-            throw new ApiRequestException("invalid_request", HttpStatus.UNAUTHORIZED);
+            throw new ApiRequestException("internal", HttpStatus.INTERNAL_SERVER_ERROR);
         }
 
     }
@@ -68,16 +75,21 @@ public class JwtService {
     }
 
     public User verifyToken(String token) {
-        Claims claims = Jwts.parser()
-                .setSigningKey(JWT_SECRET)
-                .parseClaimsJws(token)
-                .getBody();
+        try {
+            Claims claims = Jwts.parser()
+                    .setSigningKey(JWT_SECRET.getBytes("UTF-8"))
+                    .parseClaimsJws(token)
+                    .getBody();
 
-        User user = new User();
-        user.setId(Integer.parseInt(claims.get("id").toString()));
-        user.setEmail(claims.get("email").toString());
-        user.setRole(UserRole.valueOf(claims.get("role").toString()));
-        return user;
+            User user = new User();
+            user.setId(Integer.parseInt(claims.get("id").toString()));
+            user.setEmail(claims.get("email").toString());
+            user.setRole(UserRole.valueOf(claims.get("role").toString()));
+            return user;
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+            throw new ApiRequestException("invalid_request", HttpStatus.UNAUTHORIZED);
+        }
     }
 
     public String verifyRefreshToken(String token) {

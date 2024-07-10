@@ -100,7 +100,7 @@ public class UserController {
     public void verifyEmail(@RequestParam(name = "token") String query, HttpServletResponse response) {
         userService.updateVerifyEmail(query);
         try {
-            response.sendRedirect(allowedOrigins + "/login");
+            response.sendRedirect(allowedOrigins + "/signin");
         } catch (Exception e) {
             throw new ApiRequestException("Internal error", HttpStatus.INTERNAL_SERVER_ERROR);
         }

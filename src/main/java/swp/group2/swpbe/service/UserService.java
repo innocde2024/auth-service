@@ -96,7 +96,7 @@ public class UserService {
     public User updateVerifyEmail(String token) {
         String email = "";
         try {
-            email = jwtService.verifyToken(token).getEmail();
+            email = jwtService.verifyVToken(token);
         } catch (Exception e) {
             throw new ApiRequestException("Invalid token", HttpStatus.BAD_REQUEST);
         }
